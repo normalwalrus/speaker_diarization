@@ -10,7 +10,7 @@ EXAMPLES = [['audio/british_ministers.wav', 1, 'silero-vad', 'ECAPA_TDNN_pretrai
 
 inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'), gr.Slider(0.5, 2, label= 'Window Length'),
           gr.Radio(vad_choices, label= 'VAD choice'), gr.Radio(embedder_choice, label='Embedder Choice'), 
-          gr.Radio(clustering_chocie, label='Clustering Choice')]
+          gr.Radio(clustering_chocie, label='Clustering Choice'), gr.Checkbox(label = 'Transcription')]
 
 outputs = ['text']
 

@@ -4,13 +4,14 @@ from utils.embedding import EmbedderModule
 from utils.vad import VADModule
 from utils.generalClasses import DataLoader_extraction
 from utils.audioSplitter import SplitterModule
+from utils.transciption import TransciptionModule
 
 class TesterModule():
     def __init__(self) -> None:
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def predict(self, audio, window_length, vad, embedder, clusterer):
+    def predict(self, audio, window_length, vad, embedder, clusterer, transcription):
 
         window_size = int(window_length * 16000)
 
@@ -35,7 +36,30 @@ class TesterModule():
         combine_list = self.get_list_with_index_and_labels(index_list, Clusterer)
 
         #Create the final string for presentation
-        final_string, final_list = self.get_final_string(combine_list, window_size/sampling_rate)
+        final_string, final_list = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
+
+        if not (transcription):
+            return final_string
+
+        #Adding Transcriptions
+        Transcriber = TransciptionModule()
+        transcribed_list = Transcriber.diarization_transcription(final_list, split_tensors, [window_size, sampling_rate])
+
+        #Form final list
+        transcribed_string = self.get_final_string_with_transcription(transcribed_list, final_list)
+
+        return transcribed_string
+    
+    def get_final_string_with_transcription(self, transcibed_list, final_list):
+
+        final_string = ''
+        for x in range(len(final_list)):
+            final_list[x].append(transcibed_list[x])
+
+        for x in range(len(final_list)):
+            
+            temp = f'Speaker {final_list[x][0]} : {final_list[x][1]}s - {final_list[x][2]}s \n {final_list[x][3]} \n\n'
+            final_string+=temp
 
         return final_string
     
@@ -62,7 +86,7 @@ class TesterModule():
 
         return combine_list
     
-    def get_final_string(self, combine_list, length_of_interval):
+    def get_final_string_without_transcription(self, combine_list, length_of_interval):
         starting = 1
         final_string = ''
         final_list = []
@@ -86,4 +110,5 @@ class TesterModule():
                 final_list.append([combine_list[x][1], round(start,2), round(end,2)])
 
         return final_string, final_list
+
         
