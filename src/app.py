@@ -5,6 +5,8 @@ vad_choices = ['silero-vad']
 embedder_choice = ['ECAPA_TDNN_pretrained']
 clustering_chocie = ['KMeans', 'Spectral']
 
+EXAMPLES = [['audio/british_ministers.wav', 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans']]
+
 
 inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'), gr.Slider(0.5, 2, label= 'Window Length'),
           gr.Radio(vad_choices, label= 'VAD choice'), gr.Radio(embedder_choice, label='Embedder Choice'), 
@@ -20,6 +22,7 @@ if __name__ == "__main__":
         Tester.predict,
         inputs=inputs,
         outputs=outputs,
-        title='lmao'
+        title='lmao',
+        examples= EXAMPLES
     ).launch(server_name="0.0.0.0")
     

@@ -70,20 +70,20 @@ class TesterModule():
         for x in range(len(combine_list)):
             if starting:
                 start = combine_list[x][0] * length_of_interval
-                final_string += f'Speaker {combine_list[x][1]} : {start}'
+                final_string += f'Speaker {combine_list[x][1]} : {round(start,2)}'
                 starting = 0
             
             if x != len(combine_list)-1:
                 if combine_list[x+1][1] != combine_list[x][1] or combine_list[x+1][0] != combine_list[x][0]+1:
                     end = (combine_list[x][0] + 1) * length_of_interval
-                    final_string += f' - {end} \n'
+                    final_string += f' - {round(end,2)} \n'
                     starting = 1
-                    final_list.append([combine_list[x][1], start, end])
+                    final_list.append([combine_list[x][1], round(start,2), round(end,2)])
 
             else:
                 end = (combine_list[x][0] + 1) * length_of_interval
-                final_string += f' - {end} \n'
-                final_list.append([combine_list[x][1], start, end])
+                final_string += f' - {round(end,2)} \n'
+                final_list.append([combine_list[x][1], round(start,2), round(end,2)])
 
         return final_string, final_list
         
