@@ -8,35 +8,8 @@ from sklearn.preprocessing import normalize
 from sklearn.model_selection import train_test_split
 from random import shuffle
 from math import floor
-from pydub import AudioSegment
 import math, random
 import matplotlib.pyplot as plt
-from speechbrain.pretrained.interfaces import Pretrained
-
-class SplitWavAudioMubin():
-    def __init__(self, storeLocation, filepath = None):
-
-        self.filepath = filepath
-        self.storeLocation = storeLocation
-        
-        self.audio = AudioSegment.from_wav(self.filepath)
-    
-    def get_duration(self):
-        return self.audio.duration_seconds
-    
-    def single_split(self, from_min, to_min, split_filename):
-        t1 = from_min * 1000
-        t2 = to_min * 1000
-        split_audio = self.audio[t1:t2]
-        split_audio.export(self.storeLocation+'/'+split_filename, format="wav")
-        
-    def multiple_split(self, sec_per_split,num_name = ''):
-        total_sec = math.ceil(self.get_duration() )
-        for i in range(0, total_sec, sec_per_split):
-            split_fn = str(i)+num_name+'.wav'
-            self.single_split(i, i+sec_per_split, split_fn)
-            if i == total_sec - sec_per_split:
-                print('All splited successfully')
 
 # DataLoader class to extract 5 different kinds of Audio Features
 # 1. MFCC -> Built on MSS so no need 
@@ -223,37 +196,3 @@ class DataLoader_extraction():
 
         return sig
     
-class Encoder(Pretrained):
-
-    MODULES_NEEDED = [
-        "compute_features",
-        "mean_var_norm",
-        "embedding_model"
-    ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def encode_batch(self, wavs, wav_lens=None, normalize=False, device = 'cpu'):
-        # Manage single waveforms in input
-        if len(wavs.shape) == 1:
-            wavs = wavs.unsqueeze(0)
-
-        # Assign full length if wav_lens is not assigned
-        if wav_lens is None:
-            wav_lens = torch.ones(wavs.shape[0], device=device)
-
-        # Storing waveform in the specified device
-        wavs, wav_lens = wavs.to(device), wav_lens.to(device)
-        wavs = wavs.float()
-
-        # Computing features and embeddings
-        feats = self.mods.compute_features(wavs)
-        feats = self.mods.mean_var_norm(feats, wav_lens)
-        embeddings = self.mods.embedding_model(feats, wav_lens)
-        if normalize:
-            embeddings = self.hparams.mean_var_norm_emb(
-                embeddings,
-                torch.ones(embeddings.shape[0], device=device)
-            )
-        return embeddings

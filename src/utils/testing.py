@@ -2,9 +2,10 @@ import torch
 from utils.clustering import ClusterModule
 from utils.embedding import EmbedderModule
 from utils.vad import VADModule
-from utils.generalClasses import DataLoader_extraction
+from utils.audioDataloader import DataLoader_extraction
 from utils.audioSplitter import SplitterModule
 from utils.transciption import TransciptionModule
+from logzero import logger
 
 class TesterModule():
     def __init__(self) -> None:
@@ -16,38 +17,48 @@ class TesterModule():
         window_size = int(window_length * 16000)
 
         #Get tensors from the audio path
+        logger.info('Extracting Features in Tensor form...')
         DL = DataLoader_extraction(audio)
         tensors = DL.y[0][0]
 
         #Voice Activation Detection (Modularise VAD class soon)
+        logger.info('Performing Voice Activity Detction...')
         VAD = VADModule(vad)
         vad_check, sampling_rate, _ = VAD.silero_vad_inference(tensors, window_size_samples= window_size)
 
         #Split the tensors into desired window_size
+        logger.info(f'Splitting audio into {window_size/sampling_rate} intervals...')
         Splitter = SplitterModule()
         split_tensors = Splitter.split_audio_tensor(audio, window_size/sampling_rate)
 
         #Get embeddings
+        logger.info(f'Getting embeddings from {embedder}...')
         Embedder = EmbedderModule(embedder)
         embedding_list, index_list = self.get_embeddings_with_vad_check(split_tensors, vad_check, Embedder)
 
         #Cluster the embeddings 
+        logger.info(f'Clusering using {clusterer}...')
         Clusterer = ClusterModule(embedding_list, clusterer, 2)
         combine_list = self.get_list_with_index_and_labels(index_list, Clusterer)
 
         #Create the final string for presentation
+        logger.info(f'Forming final list for display...')
         final_string, final_list = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
 
         if not (transcription):
+            logger.info(f'Display final string without transciption...')
             return final_string
 
         #Adding Transcriptions
+        logger.info(f'Transcripting audio...')
         Transcriber = TransciptionModule()
         transcribed_list = Transcriber.diarization_transcription(final_list, split_tensors, [window_size, sampling_rate])
 
         #Form final list
+        logger.info(f'Display final string with transciption...')
         transcribed_string = self.get_final_string_with_transcription(transcribed_list, final_list)
 
+        logger.info('Exiting out of predict...')
         return transcribed_string
     
     def get_final_string_with_transcription(self, transcibed_list, final_list):
