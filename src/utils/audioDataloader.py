@@ -97,8 +97,10 @@ class DataLoader_extraction():
 
         return np.array(spec)
     
-    def MFCC_extraction(self , n_mfcc = 40, mean = True, remix = True, align_zero = True, max_ms = 5000):
-        y_trim = self.ynumpy
+    def MFCC_extraction(self, y_trim = 0, n_mfcc = 40, mean = True, remix = True, align_zero = True, max_ms = 5000):
+        if not y_trim:
+            y_trim = self.ynumpy
+        
         if remix:
             y_trim = librosa.effects.remix(self.ynumpy, intervals=librosa.effects.split(self.ynumpy), align_zeros=align_zero)
             y_trim = self.pad_trunc_function(y_trim, self.sr, max_ms, 1)

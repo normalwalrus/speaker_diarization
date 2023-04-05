@@ -3,7 +3,7 @@ from utils.testing import TesterModule
 import text.messages as messages
 
 vad_choices = ['silero-vad']
-embedder_choice = ['ECAPA_TDNN_pretrained']
+embedder_choice = ['ECAPA_TDNN_pretrained', 'Wav2Vec2']
 clustering_chocie = ['KMeans', 'Spectral']
 
 EXAMPLES = [['audio/british_ministers.wav', 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False]]

@@ -6,8 +6,8 @@ if __name__ == "__main__":
     logger.info('Recording starting...')
 
     Recorder = RecorderModule()
-    length = 10
-    name = 'test'
+    length = 60
+    name = 'test2'
     sampling_rate = 16000
     channel = 1
 
