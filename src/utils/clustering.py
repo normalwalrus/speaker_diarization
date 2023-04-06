@@ -5,16 +5,23 @@ class ClusterModule():
     def __init__(self, feature_list, choice = 'KMeans', n_cluster = 2) -> None:
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.n_cluster = n_cluster
+
+        if n_cluster == 0:
+            self.n_cluster = 2
+        else:
+            self.n_cluster = n_cluster
 
         match choice:
 
             case 'KMeans':
-                self.n_cluster = self.elbow_method(feature_list)
+                if n_cluster == 0:
+                    self.n_cluster = self.elbow_method(feature_list)
                 self.clusterer = KMeans(n_clusters=self.n_cluster, random_state=0, n_init="auto").fit(feature_list)
 
             case 'Spectral':
-                self.clusterer = SpectralClustering(n_clusters=self.n_cluster, random_state=0).fit(feature_list)
+                #TODO how to predict
+                self.clusterer = SpectralClustering(n_clusters=self.n_cluster, random_state=0,
+                                                    assign_labels='cluster_qr').fit(feature_list)
 
             case 'DBScan':
                 self.clusterer = DBSCAN(eps=3, min_samples=2).fit(feature_list)

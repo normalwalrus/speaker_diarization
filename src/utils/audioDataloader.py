@@ -21,12 +21,16 @@ import matplotlib.pyplot as plt
 # 1 Dataloader class per 1 audio sample
 
 class DataLoader_extraction():
-    def __init__(self, path, normalize = True):
-        self.path = path
-        #self.y = np.array(librosa.load(path, mono = True, sr = self.sr))
-        self.y = torchaudio.load(path, normalize = normalize)
-        self.sr = self.y[1]
-        self.ynumpy = (self.y[0][0]).numpy()
+    def __init__(self, path = None, normalize = True, sr = 16000):
+        if path != None:
+            self.path = path
+            self.y = torchaudio.load(path, normalize = normalize)
+            self.sr = self.y[1]
+            self.ynumpy = (self.y[0][0]).numpy()
+        else:
+            self.ynumpy = None
+            self.y = None
+            self.sr = sr
 
     def rechannel(self, new_channel):
         sig, sr = self.y
@@ -98,7 +102,7 @@ class DataLoader_extraction():
         return np.array(spec)
     
     def MFCC_extraction(self, y_trim = 0, n_mfcc = 40, mean = True, remix = True, align_zero = True, max_ms = 5000):
-        if not y_trim:
+        if self.ynumpy != None:
             y_trim = self.ynumpy
         
         if remix:

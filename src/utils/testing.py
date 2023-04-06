@@ -12,13 +12,13 @@ class TesterModule():
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def predict(self, audio, window_length, vad, embedder, clusterer, transcription):
+    def predict(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription):
 
         window_size = int(window_length * 16000)
 
         #Get tensors from the audio path
         logger.info('Extracting Features in Tensor form...')
-        DL = DataLoader_extraction(audio)
+        DL = DataLoader_extraction(path = audio)
         tensors = DL.y[0][0]
 
         #Voice Activation Detection (Modularise VAD class soon)
@@ -38,7 +38,7 @@ class TesterModule():
 
         #Cluster the embeddings 
         logger.info(f'Clusering using {clusterer}...')
-        Clusterer = ClusterModule(embedding_list, clusterer, 2)
+        Clusterer = ClusterModule(embedding_list, clusterer, n_clusters)
         combine_list = self.get_list_with_index_and_labels(index_list, Clusterer)
 
         #Create the final string for presentation

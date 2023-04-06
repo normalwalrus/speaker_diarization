@@ -3,16 +3,18 @@ from utils.testing import TesterModule
 import text.messages as messages
 
 vad_choices = ['silero-vad']
-embedder_choice = ['ECAPA_TDNN_pretrained', 'Wav2Vec2']
-clustering_chocie = ['KMeans', 'Spectral']
+embedder_choice = ['ECAPA_TDNN_pretrained', 'Wav2Vec2', 'MFCC']
+clustering_choice = ['KMeans', 'Spectral']
 
-EXAMPLES = [['audio/british_ministers.wav', 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False]]
+EXAMPLES = [['audio/british_ministers.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
+            ['audio/leyee_ian_convo.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False]]
 
 
 inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'),
+          gr.Slider(0 ,5, step = 1, label = 'Number of Clusters (if 0 = for model inference)'),
           gr.Slider(0.5, 2, label= 'Window Length (Sec)'),
           gr.Radio(vad_choices, label= 'VAD choice'), gr.Radio(embedder_choice, label='Embedder Choice'), 
-          gr.Radio(clustering_chocie, label='Clustering Choice'), gr.Checkbox(label = 'Transcription')]
+          gr.Radio(clustering_choice, label='Clustering Choice'), gr.Checkbox(label = 'Transcription')]
 
 outputs = ['text']
 

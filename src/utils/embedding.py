@@ -3,6 +3,7 @@ import os
 import librosa
 import numpy as np
 import torchaudio
+from utils.audioDataloader import DataLoader_extraction
 from speechbrain.pretrained.interfaces import Pretrained
 from models.ECAPA_TDNN import ECAPA_TDNN
 
@@ -24,6 +25,9 @@ class EmbedderModule():
                 bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
                 self.classifier = bundle.get_model()
             
+            case 'MFCC':
+                self.classifier = None
+            
             case 'ECAPA_TDNN': # DOES NOT WORK SINCE ECAPA TRAINED ON 5 SEC AUDIO ONLY
                 save_path = os.getcwd() + PATH_TO_ECAPA_TDNN
                 self.classifier = ECAPA_TDNN(157 ,512, 20)
@@ -43,9 +47,25 @@ class EmbedderModule():
 
             case 'Wav2Vec2':
                 features = self.classifier.extract_features(tensors[0].type(torch.float))
-                #NOT SURE CHECK AGAIN
-                features = features[0][0].type(torch.double)
+                final = np.array([])
+
+                for x in features[0]:
+                    x = x[0].detach().numpy()
+
+                    x = np.mean(x, axis=1)
+
+                    final = np.concatenate((final, x), axis = None)
+
+                features = torch.from_numpy(final)
+                features = features[None, None, :]
             
+            case 'MFCC':
+
+                DL = DataLoader_extraction(sr=16000)
+                features = tensors[0].numpy()
+                features = DL.MFCC_extraction(features, mean = False, remix = False)
+                features = torch.from_numpy(features)
+
             case 'ECAPA_TDNN': # DOES NOT WORK
                 tensors = tensors[0].numpy()
                 features = self.get_MFCC(tensors)
