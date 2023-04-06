@@ -50,7 +50,7 @@ class TransciptionModule:
         transciption = []
         window, sample_rate = params
         basic_unit = window/sample_rate
-        count = -1
+        count = 0
 
         for x in final_list:
             temp_audio = torch.tensor([])

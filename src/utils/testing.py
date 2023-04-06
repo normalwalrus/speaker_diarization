@@ -4,7 +4,7 @@ from utils.embedding import EmbedderModule
 from utils.vad import VADModule
 from utils.audioDataloader import DataLoader_extraction
 from utils.audioSplitter import SplitterModule
-from utils.transciption import TransciptionModule
+from utils.transcription import TransciptionModule
 from logzero import logger
 
 class TesterModule():
