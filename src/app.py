@@ -9,8 +9,8 @@ embedder_choice = ['ECAPA_TDNN_pretrained', 'Wav2Vec2', 'MFCC']
 clustering_choice = ['KMeans', 'Spectral', 'Agglomerative']
 
 EXAMPLES = [[path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
-            [path_to_audio+'interview.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
-            [path_to_audio+'news.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'Spectral', False]]
+            [path_to_audio+'0638.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
+            [path_to_audio+'4065.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'Spectral', False]]
 
 
 inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'),

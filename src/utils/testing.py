@@ -89,11 +89,11 @@ class TesterModule():
         
         return features_list, index_list
     
-    def get_list_with_index_and_labels(self, index_list, CM):
+    def get_list_with_index_and_labels(self, index_list, ClusteringModule):
         combine_list = []
 
         for x in range(len(index_list)):
-            combine_list.append([index_list[x], CM.get_labels()[x]])
+            combine_list.append([index_list[x], ClusteringModule.get_labels()[x]])
 
         return combine_list
     
