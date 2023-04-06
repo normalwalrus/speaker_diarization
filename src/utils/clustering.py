@@ -1,4 +1,4 @@
-from sklearn.cluster import SpectralClustering, KMeans, DBSCAN
+from sklearn.cluster import SpectralClustering, KMeans, DBSCAN, AgglomerativeClustering
 import torch
 
 class ClusterModule():
@@ -20,10 +20,15 @@ class ClusterModule():
 
             case 'Spectral':
                 #TODO how to predict
+                #Nearest_Neighbours seem to perform the best
                 self.clusterer = SpectralClustering(n_clusters=self.n_cluster, random_state=0,
-                                                    assign_labels='cluster_qr').fit(feature_list)
+                                                    assign_labels='cluster_qr', affinity= 'nearest_neighbors').fit(feature_list)
+                
+            case 'Agglomerative':
+                self.clusterer = AgglomerativeClustering(n_clusters = self.n_cluster).fit(feature_list)
 
             case 'DBScan':
+                #Not in use since eps and min_samples hard to define
                 self.clusterer = DBSCAN(eps=3, min_samples=2).fit(feature_list)
 
             case _:
