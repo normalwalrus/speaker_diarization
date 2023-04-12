@@ -1,4 +1,5 @@
 import torch
+import os
 from utils.clustering import ClusterModule
 from utils.embedding import EmbedderModule
 from utils.vad import VADModule
@@ -39,11 +40,14 @@ class TesterModule():
         #Cluster the embeddings 
         logger.info(f'Clusering using {clusterer}...')
         Clusterer = ClusterModule(embedding_list, clusterer, n_clusters)
-        combine_list = self.get_list_with_index_and_labels(index_list, Clusterer)
+        labels = Clusterer.get_labels()
+        combine_list = self.get_list_with_index_and_labels(index_list, labels)
 
         #Create the final string for presentation
         logger.info(f'Forming final list for display...')
         final_string, final_list = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
+
+        #self.export_textfile(final_list, 'test')
 
         if not (transcription):
             logger.info(f'Display final string without transciption...')
@@ -60,6 +64,11 @@ class TesterModule():
 
         logger.info('Exiting out of predict...')
         return transcribed_string
+    
+    def export_textfile(self, list_temp, name, path = '/../data/text/'):
+        with open(os.getcwd()+f'/data/text/{name}.txt', 'w') as f:
+            for line in list_temp:
+                f.write(f"{line}\n")
     
     def get_final_string_with_transcription(self, transcibed_list, final_list):
 
@@ -89,11 +98,11 @@ class TesterModule():
         
         return features_list, index_list
     
-    def get_list_with_index_and_labels(self, index_list, ClusteringModule):
+    def get_list_with_index_and_labels(self, index_list, labels):
         combine_list = []
 
         for x in range(len(index_list)):
-            combine_list.append([index_list[x], ClusteringModule.get_labels()[x]])
+            combine_list.append([index_list[x], 'A' if labels[x]==0 else 'B'])
 
         return combine_list
     
@@ -121,5 +130,3 @@ class TesterModule():
                 final_list.append([combine_list[x][1], round(start,2), round(end,2)])
 
         return final_string, final_list
-
-        

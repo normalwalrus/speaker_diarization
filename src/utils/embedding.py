@@ -3,6 +3,7 @@ import os
 import librosa
 import numpy as np
 import torchaudio
+import nemo.collections.asr as nemo_asr
 from utils.audioDataloader import DataLoader_extraction
 from speechbrain.pretrained.interfaces import Pretrained
 from models.ECAPA_TDNN import ECAPA_TDNN
@@ -24,6 +25,9 @@ class EmbedderModule():
             case 'Wav2Vec2':
                 bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
                 self.classifier = bundle.get_model()
+
+            case 'titanet-l.nemo':
+                self.classifier = nemo_asr.models.EncDecSpeakerLabelModel.restore_from(restore_path = os.getcwd() + "/models/titanet-l.nemo")
             
             case 'MFCC':
                 self.classifier = None
@@ -44,6 +48,12 @@ class EmbedderModule():
 
             case 'ECAPA_TDNN_pretrained':
                 features = torch.tensor(self.classifier.encode_batch(tensors[0], device = self.device))
+            
+            case 'titanet-l.nemo':
+                torchaudio.save('test.wav', tensors[0], 16000)
+                features = self.classifier.get_embedding('test.wav')
+                features = features[None, :]
+                os.remove('test.wav')
 
             case 'Wav2Vec2':
                 features = self.classifier.extract_features(tensors[0].type(torch.float))
