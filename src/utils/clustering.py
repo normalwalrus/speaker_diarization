@@ -1,10 +1,13 @@
 from sklearn.cluster import SpectralClustering, KMeans, DBSCAN, AgglomerativeClustering
+from spectralcluster import SpectralClusterer
+import numpy as np
 import torch
 
 class ClusterModule():
     def __init__(self, feature_list, choice = 'KMeans', n_cluster = 2) -> None:
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.name = choice
 
         if n_cluster == 0:
             self.n_cluster = 2
@@ -27,6 +30,16 @@ class ClusterModule():
             case 'Agglomerative':
                 self.clusterer = AgglomerativeClustering(n_clusters = self.n_cluster).fit(feature_list)
 
+            case 'Google_Spectral':
+                self.clusterer = SpectralClusterer(
+                            min_clusters=2,
+                            max_clusters=7,
+                            autotune=None,
+                            laplacian_type=None,
+                            refinement_options=None,
+                            custom_dist="cosine")
+                self.features = np.array(feature_list)
+
             case 'DBScan':
                 #Not in use since eps and min_samples hard to define
                 self.clusterer = DBSCAN(eps=3, min_samples=2).fit(feature_list)
@@ -35,6 +48,12 @@ class ClusterModule():
                 print('Error: Clustering choice not found')
     
     def get_labels(self):
+
+        match self.name:
+
+            case 'Google_Spectral':
+
+                return self.clusterer.predict(self.features)
 
         return self.clusterer.labels_
     
