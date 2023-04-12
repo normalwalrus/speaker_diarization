@@ -6,6 +6,7 @@ from utils.vad import VADModule
 from utils.audioDataloader import DataLoader_extraction
 from utils.audioSplitter import SplitterModule
 from utils.transcription import TransciptionModule
+from utils.scoring import ScoringModule
 from logzero import logger
 
 class TesterModule():
@@ -45,9 +46,13 @@ class TesterModule():
 
         #Create the final string for presentation
         logger.info(f'Forming final list for display...')
-        final_string, final_list = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
+        final_string, final_list, for_assessing = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
 
-        #self.export_textfile(final_list, 'test')
+        #Assessing error rate of the resultant list of tuples
+        scorer = ScoringModule()
+        if scorer.get_ground_truth_path(audio):
+            error_rate = scorer.score(audio, for_assessing)
+            final_string = scorer.stringify(error_rate) + final_string
 
         if not (transcription):
             logger.info(f'Display final string without transciption...')
@@ -110,6 +115,7 @@ class TesterModule():
         starting = 1
         final_string = ''
         final_list = []
+        for_assessing = []
 
         for x in range(len(combine_list)):
             if starting:
@@ -123,10 +129,12 @@ class TesterModule():
                     final_string += f' - {round(end,2)} \n'
                     starting = 1
                     final_list.append([combine_list[x][1], round(start,2), round(end,2)])
+                    for_assessing.append((combine_list[x][1], round(start,2), round(end,2)))
 
             else:
                 end = (combine_list[x][0] + 1) * length_of_interval
                 final_string += f' - {round(end,2)} \n'
                 final_list.append([combine_list[x][1], round(start,2), round(end,2)])
+                for_assessing.append((combine_list[x][1], round(start,2), round(end,2)))
 
-        return final_string, final_list
+        return final_string, final_list, for_assessing
