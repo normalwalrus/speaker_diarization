@@ -8,6 +8,8 @@ from sklearn.preprocessing import normalize
 from sklearn.model_selection import train_test_split
 from random import shuffle
 from math import floor
+from pydub import AudioSegment
+import os
 import math, random
 import matplotlib.pyplot as plt
 
@@ -24,13 +26,29 @@ class DataLoader_extraction():
     def __init__(self, path = None, normalize = True, sr = 16000):
         if path != None:
             self.path = path
-            self.y = torchaudio.load(path, normalize = normalize)
+
+            sound = AudioSegment.from_wav(self.path)
+            sound = sound.set_channels(1)
+            os.remove(self.path)
+            sound.export(self.path, format="wav")
+
+            y = torchaudio.load(path, normalize = normalize)
+            transform = transforms.Resample(y[1], 16000)
+            y = transform(y[0])
+            self.y = [y, 16000]
             self.sr = self.y[1]
             self.ynumpy = (self.y[0][0]).numpy()
         else:
             self.ynumpy = None
             self.y = None
             self.sr = sr
+
+    def rechannel_resample(self, channel, sr):
+
+        self.rechannel(channel)
+        self.resample(sr)
+
+        return
 
     def rechannel(self, new_channel):
         sig, sr = self.y

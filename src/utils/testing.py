@@ -20,7 +20,8 @@ class TesterModule():
 
         #Get tensors from the audio path
         logger.info('Extracting Features in Tensor form...')
-        DL = DataLoader_extraction(path = audio)
+        DL = DataLoader_extraction(path = audio, normalize=True)
+        DL.rechannel_resample(0, 16000)
         tensors = DL.y[0][0]
 
         #Voice Activation Detection (Modularise VAD class soon)
@@ -107,9 +108,22 @@ class TesterModule():
         combine_list = []
 
         for x in range(len(index_list)):
-            combine_list.append([index_list[x], 'A' if labels[x]==0 else 'B'])
+            combine_list.append([index_list[x], self.speaker_decision(labels[x])])
 
         return combine_list
+    
+    def speaker_decision(self, label):
+        match label:
+            case 0:
+                return "A"
+            case 1:
+                return "B"
+            case 2:
+                return "C"
+            case 3:
+                return "D"
+            case 4:
+                return "E"
     
     def get_final_string_without_transcription(self, combine_list, length_of_interval):
         starting = 1
