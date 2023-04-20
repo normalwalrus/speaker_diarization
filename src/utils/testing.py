@@ -1,5 +1,6 @@
 import torch
 import os
+import pickle
 from utils.clustering import ClusterModule
 from utils.embedding import EmbedderModule
 from utils.vad import VADModule
@@ -48,6 +49,7 @@ class TesterModule():
         #Create the final string for presentation
         logger.info(f'Forming final list for display...')
         final_string, final_list, for_assessing = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
+        self.export_textfile(for_assessing, 'testing')
 
         #Assessing error rate of the resultant list of tuples
         scorer = ScoringModule()

@@ -7,8 +7,10 @@ import nemo.collections.asr as nemo_asr
 from utils.audioDataloader import DataLoader_extraction
 from speechbrain.pretrained.interfaces import Pretrained
 from models.ECAPA_TDNN import ECAPA_TDNN
+from models.neuralnet import FeedForwardNN
 
 PATH_TO_ECAPA_TDNN = '/models/ECAPA_TDNN_v1.0_5sec_80MFCC_30epoch.pt'
+PATH_TO_FEEDFORWARD = os.getcwd()+'/models/ECAPA_TDNN_Pretrained_v1.0_5sec_10epoch.pt'
 
 class EmbedderModule():
     def __init__(self, choice = 'ECAPA_TDNN_pretrained') -> None:
@@ -16,6 +18,14 @@ class EmbedderModule():
         self.name = choice
         
         match choice:
+
+            case 'ECAPA_TDNN_pretrained_singaporean':
+                self.classifier = Encoder_ECAPA_TDNN.from_hparams(
+                    source="yangwang825/ecapa-tdnn-vox2"
+                ).to(self.device)
+                self.embedder = FeedForwardNN(192, 20, 0).to(self.device)
+                self.embedder.load_state_dict(torch.load(PATH_TO_FEEDFORWARD))
+                self.embedder.eval().double()
 
             case 'ECAPA_TDNN_pretrained':
                 self.classifier = Encoder_ECAPA_TDNN.from_hparams(
@@ -45,6 +55,11 @@ class EmbedderModule():
     def get_embeddings(self, tensors):
 
         match self.name:
+
+            case 'ECAPA_TDNN_pretrained_singaporean':
+                features = torch.tensor(self.classifier.encode_batch(tensors[0], device = self.device))
+                features = features.type(torch.double).to(self.device)
+                features = torch.tensor(self.embedder(features))
 
             case 'ECAPA_TDNN_pretrained':
                 features = torch.tensor(self.classifier.encode_batch(tensors[0], device = self.device))
