@@ -1,6 +1,7 @@
 import simpleder
 from pyannote.core import Annotation, Segment
 from pyannote.metrics.diarization import DiarizationErrorRate
+from constants.CALLHOME import CALLHOME_audio
 
 class ScoringModule():
 
@@ -17,6 +18,9 @@ class ScoringModule():
         ground_truth_path = self.get_ground_truth_path(audio_path)
 
         ground_truth = self.get_ground_truth(ground_truth_path)
+
+        if ground_truth == None:
+            return
 
         hypothesis = Annotation()
         reference = Annotation()
@@ -55,13 +59,13 @@ class ScoringModule():
         if 'british_ministers' in audio_path:
             return final_path + 'british_ministers.txt'
         
-        elif '0638' in audio_path:
-            return final_path+'CALLHOME/0638.cha'
-        
-        elif '4074' in audio_path:
-            return final_path+'CALLHOME/4074.cha'
+        else:
+            for x in CALLHOME_audio:
+                
+                if x in audio_path:
+                    return final_path+'CALLHOME/'+x+'.cha'
             
-        return None
+            return None
     
     def stringify(self, error_rate):
 
@@ -102,6 +106,9 @@ class ScoringModule():
 
             ground_truth.append(new_list)
 
+        if len(ground_truth) == 0:
+            return None
+        
         return ground_truth
     
     def read_txt_to_list(self, path):

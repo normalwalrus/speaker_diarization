@@ -1,6 +1,6 @@
 import gradio as gr
 from utils.testing import TesterModule
-import text.messages as messages
+import constants.messages as messages
 
 path_to_audio = 'data/audio/'
 
@@ -18,7 +18,8 @@ inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'),
           gr.Slider(0 ,5, step = 1, label = 'Number of Clusters (if 0 = for model inference)'),
           gr.Slider(0.5, 2, step = 0.1, label= 'Window Length (Sec)'),
           gr.Radio(vad_choices, label= 'VAD choice'), gr.Radio(embedder_choices, label='Embedder Choice'), 
-          gr.Radio(clustering_choices, label='Clustering Choice'), gr.Checkbox(label = 'Transcription')]
+          gr.Radio(clustering_choices, label='Clustering Choice'),
+          gr.Checkbox(label = 'Transcription'), gr.Checkbox(label= 'DER check CALLHOME dataset')]
 
 outputs = ['text']
 
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     Tester = TesterModule()
 
     app = gr.Interface(
-        Tester.predict,
+        Tester.main,
         inputs=inputs,
         outputs=outputs,
         title=messages.TITLE,

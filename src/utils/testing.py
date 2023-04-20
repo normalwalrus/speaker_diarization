@@ -9,13 +9,34 @@ from utils.audioSplitter import SplitterModule
 from utils.transcription import TransciptionModule
 from utils.scoring import ScoringModule
 from logzero import logger
+from constants import CALLHOME
 
 class TesterModule():
     def __init__(self) -> None:
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def predict(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription):
+    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check):
+
+        if DER_check:
+
+            audio_list = CALLHOME.CALLHOME_audio
+            error_list = []
+
+            for x in audio_list:
+                path = os.getcwd() + '/data/audio/CALLHOME/' + x +'.wav'
+                error_value = self.predict(path, 0, window_length, vad, embedder, clusterer, False, DER_check)
+                if error_value != None:
+                    error_list.append(error_value)
+                
+            average = sum(error_list)/len(error_list)
+            return str(average)
+            
+        else:
+
+            return self.predict( audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check)
+
+    def predict(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check):
 
         window_size = int(window_length * 16000)
 
@@ -52,10 +73,14 @@ class TesterModule():
         self.export_textfile(for_assessing, 'testing')
 
         #Assessing error rate of the resultant list of tuples
+        logger.info(f'Scoring DER...')
         scorer = ScoringModule()
         if scorer.get_ground_truth_path(audio):
             error_rate = scorer.score(audio, for_assessing)
             final_string = scorer.stringify(error_rate) + final_string
+
+        if DER_check:
+            return error_rate
 
         if not (transcription):
             logger.info(f'Display final string without transciption...')
