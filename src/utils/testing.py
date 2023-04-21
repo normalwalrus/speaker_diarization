@@ -37,7 +37,7 @@ class TesterModule():
             
         else:
 
-            return self.predict( audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check)
+            return self.predict( audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, DER_check)
 
     def predict(self, audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, DER_check):
 
