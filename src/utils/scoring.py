@@ -1,7 +1,9 @@
 import simpleder
+import os
 from pyannote.core import Annotation, Segment
 from pyannote.metrics.diarization import DiarizationErrorRate
 from constants.CALLHOME import CALLHOME_audio
+from logzero import logger
 
 class ScoringModule():
 
@@ -14,6 +16,8 @@ class ScoringModule():
 
 
     def score(self, audio_path, testing):
+
+        logger.info(audio_path)
 
         ground_truth_path = self.get_ground_truth_path(audio_path)
 
@@ -33,7 +37,7 @@ class ScoringModule():
 
         start = ground_truth[0][1]
         end = ground_truth[-1][2]
-        diarizationErrorRate = DiarizationErrorRate()
+        diarizationErrorRate = DiarizationErrorRate(skip_overlap=True)
 
         return diarizationErrorRate(reference, hypothesis, uem=Segment(start, end), detailed=True)['diarization error rate']
     
@@ -107,6 +111,7 @@ class ScoringModule():
             ground_truth.append(new_list)
 
         if len(ground_truth) == 0:
+            os.remove(path_to_transcript)
             return None
         
         return ground_truth

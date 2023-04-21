@@ -8,7 +8,8 @@ vad_choices = ['silero-vad']
 embedder_choices = ['ECAPA_TDNN_pretrained', 'ECAPA_TDNN_pretrained_singaporean', 'Wav2Vec2', 'MFCC', 'titanet-l.nemo']
 clustering_choices = ['KMeans', 'Spectral', 'Agglomerative', 'Google_Spectral']
 
-EXAMPLES = [[path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
+EXAMPLES = [[path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'titanet-l.nemo', 'Google_Spectral', False, True],
+            [path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
             [path_to_audio+'CALLHOME/0638.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
             [path_to_audio+'CALLHOME/4074.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
             [path_to_audio+'Sg_parliament.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'Spectral', False]]

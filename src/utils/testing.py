@@ -18,6 +18,9 @@ class TesterModule():
 
     def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check):
 
+        VAD = VADModule(vad)
+        Embedder = EmbedderModule(embedder)
+
         if DER_check:
 
             audio_list = CALLHOME.CALLHOME_audio
@@ -25,7 +28,7 @@ class TesterModule():
 
             for x in audio_list:
                 path = os.getcwd() + '/data/audio/CALLHOME/' + x +'.wav'
-                error_value = self.predict(path, 0, window_length, vad, embedder, clusterer, False, DER_check)
+                error_value = self.predict(path, 0, window_length, VAD, Embedder, clusterer, False, DER_check)
                 if error_value != None:
                     error_list.append(error_value)
                 
@@ -36,7 +39,7 @@ class TesterModule():
 
             return self.predict( audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check)
 
-    def predict(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check):
+    def predict(self, audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, DER_check):
 
         window_size = int(window_length * 16000)
 
@@ -48,7 +51,6 @@ class TesterModule():
 
         #Voice Activation Detection (Modularise VAD class soon)
         logger.info('Performing Voice Activity Detction...')
-        VAD = VADModule(vad)
         vad_check, sampling_rate, _ = VAD.silero_vad_inference(tensors, window_size_samples= window_size)
 
         #Split the tensors into desired window_size
@@ -57,8 +59,7 @@ class TesterModule():
         split_tensors = Splitter.split_audio_tensor(audio, window_size/sampling_rate)
 
         #Get embeddings
-        logger.info(f'Getting embeddings from {embedder}...')
-        Embedder = EmbedderModule(embedder)
+        logger.info(f'Getting embeddings from {Embedder.name}...')
         embedding_list, index_list = self.get_embeddings_with_vad_check(split_tensors, vad_check, Embedder)
 
         #Cluster the embeddings 
