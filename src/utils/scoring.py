@@ -82,20 +82,27 @@ class ScoringModule():
             lines = f.readlines()
 
         temp_list = []
-        for x in lines:
-            if x[0:2] == '*A' or x[0:2] == '*B':
+        cont = 0
+        for x in range(len(lines)):
+            if lines[x][0:2] == '*A' or lines[x][0:2] == '*B' or cont == 1:
 
-                index_start = x.find('\x15') + 1
+                index_start = lines[x].find('\x15') + 1
+                if cont == 0:
+                    temp =lines[x][0:2] + ' '
 
                 if index_start != 0:
-                    temp =x[0:2] + ' '
-                    for u in x[index_start:]:
+                    for u in lines[x][index_start:]:
                         if u == '\x15':
                             break
                         temp+=u
 
                     temp_list.append(temp)
+                
+                    cont = 0
 
+                else:
+                    cont = 1
+        
         ground_truth = []
 
         for r in temp_list:
@@ -104,16 +111,17 @@ class ScoringModule():
 
             start_end = r.find(' ')
             underscore_end = r.find('_')
-            true_end = len(r)-3
+            true_end = len(r)
 
-            new_list = (r[1], float(r[start_end+1:underscore_end-3]), float(r[underscore_end+1:true_end]))
+            new_list = (r[1], float(r[start_end+1:underscore_end-3]+'.'+r[underscore_end-4:underscore_end:6]), 
+                        float(r[underscore_end+1:true_end-3]+'.'+r[underscore_end-2:underscore_end]))
 
             ground_truth.append(new_list)
 
         if len(ground_truth) == 0:
             os.remove(path_to_transcript)
             return None
-        
+
         return ground_truth
     
     def read_txt_to_list(self, path):

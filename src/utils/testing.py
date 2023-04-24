@@ -16,7 +16,7 @@ class TesterModule():
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check):
+    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check, noised):
 
         VAD = VADModule(vad)
         Embedder = EmbedderModule(embedder)
@@ -24,10 +24,16 @@ class TesterModule():
         if DER_check:
 
             audio_list = CALLHOME.CALLHOME_audio
+
+            if noised:
+                path_to_folder = os.getcwd() + '/data/audio/noised_CALLHOME/'
+            else:
+                path_to_folder = os.getcwd() + '/data/audio/CALLHOME/'
+
             error_list = []
 
             for x in audio_list:
-                path = os.getcwd() + '/data/audio/CALLHOME/' + x +'.wav'
+                path = path_to_folder + x +'.wav'
                 error_value = self.predict(path, 0, window_length, VAD, Embedder, clusterer, False, DER_check)
                 if error_value != None:
                     error_list.append(error_value)

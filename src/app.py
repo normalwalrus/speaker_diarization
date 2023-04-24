@@ -20,7 +20,7 @@ inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'),
           gr.Slider(0.5, 2, step = 0.1, label= 'Window Length (Sec)'),
           gr.Radio(vad_choices, label= 'VAD choice'), gr.Radio(embedder_choices, label='Embedder Choice'), 
           gr.Radio(clustering_choices, label='Clustering Choice'),
-          gr.Checkbox(label = 'Transcription'), gr.Checkbox(label= 'DER check CALLHOME dataset')]
+          gr.Checkbox(label = 'Transcription'), gr.Checkbox(label= 'DER check CALLHOME dataset'), gr.Checkbox(label= 'Noised CALLHOME')]
 
 outputs = ['text']
 
