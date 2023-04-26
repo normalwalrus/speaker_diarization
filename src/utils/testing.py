@@ -16,7 +16,7 @@ class TesterModule():
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check, noised):
+    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check, dataset_choice):
 
         VAD = VADModule(vad)
         Embedder = EmbedderModule(embedder)
@@ -25,11 +25,9 @@ class TesterModule():
 
             audio_list = CALLHOME.CALLHOME_audio
 
-            if noised:
-                path_to_folder = os.getcwd() + '/data/audio/noised_CALLHOME/'
-            else:
-                path_to_folder = os.getcwd() + '/data/audio/CALLHOME/'
-
+            path_to_folder = self.dataset_decision(dataset_choice)
+            if not path_to_folder:
+                return 'Please select a dataset'
             error_list = []
 
             for x in audio_list:
@@ -37,7 +35,6 @@ class TesterModule():
                 error_value = self.predict(path, 0, window_length, VAD, Embedder, clusterer, False, DER_check)
                 if error_value != None:
                     error_list.append(error_value)
-                
             average = sum(error_list)/len(error_list)
             return str(average)
             
@@ -145,6 +142,19 @@ class TesterModule():
             combine_list.append([index_list[x], self.speaker_decision(labels[x])])
 
         return combine_list
+    
+    def dataset_decision(self, label):
+        match label:
+            case 'None':
+                return None
+            case 'CALLHOME':
+                return os.getcwd() + '/data/audio/CALLHOME/'
+            case 'Noised_CALLHOME':
+                return os.getcwd() + '/data/audio/noised_CALLHOME/'
+            case 'Chatter_CALLHOME':
+                return os.getcwd() + '/data/audio/chatter_CALLHOME/'
+            
+        return None
     
     def speaker_decision(self, label):
         match label:
