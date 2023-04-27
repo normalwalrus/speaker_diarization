@@ -74,12 +74,14 @@ class TesterModule():
         #Create the final string for presentation
         logger.info(f'Forming final list for display...')
         final_string, final_list, for_assessing = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
-        self.export_textfile(for_assessing, 'testing')
 
         #Assessing error rate of the resultant list of tuples
         logger.info(f'Scoring DER...')
         scorer = ScoringModule()
         if scorer.get_ground_truth_path(audio):
+            #Testing
+            self.export_textfile(scorer.get_ground_truth(scorer.get_ground_truth_path(audio)), 'testing')
+
             error_rate = scorer.score(audio, for_assessing)
             final_string = scorer.stringify(error_rate) + final_string
 

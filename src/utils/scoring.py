@@ -113,8 +113,9 @@ class ScoringModule():
             underscore_end = r.find('_')
             true_end = len(r)
 
-            new_list = (r[1], float(r[start_end+1:underscore_end-3]+'.'+r[underscore_end-4:underscore_end:6]), 
-                        float(r[underscore_end+1:true_end-3]+'.'+r[underscore_end-2:underscore_end]))
+            
+            new_list = (r[1], float(r[start_end+1:underscore_end-3]+'.'+r[underscore_end-3:underscore_end]), 
+                                float(r[underscore_end+1:true_end-3]+'.'+r[true_end-3:true_end]))
 
             ground_truth.append(new_list)
 
