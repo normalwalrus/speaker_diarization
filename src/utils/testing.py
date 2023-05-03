@@ -16,33 +16,35 @@ class TesterModule():
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, DER_check, dataset_choice):
+    def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, assessment, dataset_choice):
 
         VAD = VADModule(vad)
         Embedder = EmbedderModule(embedder)
 
-        if DER_check:
+        match assessment:
 
-            audio_list = CALLHOME.CALLHOME_audio
+            case 'None':
 
-            path_to_folder = self.dataset_decision(dataset_choice)
-            if not path_to_folder:
-                return 'Please select a dataset'
-            error_list = []
-
-            for x in audio_list:
-                path = path_to_folder + x +'.wav'
-                error_value = self.predict(path, 0, window_length, VAD, Embedder, clusterer, False, DER_check)
-                if error_value != None:
-                    error_list.append(error_value)
-            average = sum(error_list)/len(error_list)
-            return str(average)
+                return self.predict( audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, assessment)
             
-        else:
+            case _:
 
-            return self.predict( audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, DER_check)
+                audio_list = CALLHOME.CALLHOME_audio
 
-    def predict(self, audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, DER_check):
+                path_to_folder = self.dataset_decision(dataset_choice)
+                if not path_to_folder:
+                    return 'Please select a dataset'
+                error_list = []
+
+                for x in audio_list:
+                    path = path_to_folder + x +'.wav'
+                    error_value = self.predict(path, 0, window_length, VAD, Embedder, clusterer, False, assessment)
+                    if error_value != None:
+                        error_list.append(error_value)
+                average = sum(error_list)/len(error_list)
+                return str(average)
+
+    def predict(self, audio, n_clusters, window_length, VAD, Embedder, clusterer, transcription, assessment):
 
         window_size = int(window_length * 16000)
 
@@ -54,21 +56,28 @@ class TesterModule():
 
         #Voice Activation Detection (Modularise VAD class soon)
         logger.info('Performing Voice Activity Detction...')
-        vad_check, sampling_rate, _ = VAD.silero_vad_inference(tensors, window_size_samples= window_size)
+        vad_check, sampling_rate, _ = VAD.silero_vad_inference(tensors, threshold = 0.1 ,window_size_samples= window_size)
 
-        #Split the tensors into desired window_size
-        logger.info(f'Splitting audio into {window_size/sampling_rate} intervals...')
-        Splitter = SplitterModule()
-        split_tensors = Splitter.split_audio_tensor(audio, window_size/sampling_rate)
+        if assessment == 'VAD':
+            #Setting up VAD check, no need for embeddings or clustering
+            labels = None
+            index_list = self.vad_check_to_index_list(vad_check)
+        
+        else:
+            #Split the tensors into desired window_size
+            logger.info(f'Splitting audio into {window_size/sampling_rate} intervals...')
+            Splitter = SplitterModule()
+            split_tensors = Splitter.split_audio_tensor(audio, window_size/sampling_rate)
 
-        #Get embeddings
-        logger.info(f'Getting embeddings from {Embedder.name}...')
-        embedding_list, index_list = self.get_embeddings_with_vad_check(split_tensors, vad_check, Embedder)
+            #Get embeddings
+            logger.info(f'Getting embeddings from {Embedder.name}...')
+            embedding_list, index_list = self.get_embeddings_with_vad_check(split_tensors, vad_check, Embedder)
 
-        #Cluster the embeddings 
-        logger.info(f'Clusering using {clusterer}...')
-        Clusterer = ClusterModule(embedding_list, clusterer, n_clusters)
-        labels = Clusterer.get_labels()
+            #Cluster the embeddings 
+            logger.info(f'Clusering using {clusterer}...')
+            Clusterer = ClusterModule(embedding_list, clusterer, n_clusters)
+            labels = Clusterer.get_labels()
+        
         combine_list = self.get_list_with_index_and_labels(index_list, labels)
 
         #Create the final string for presentation
@@ -76,16 +85,17 @@ class TesterModule():
         final_string, final_list, for_assessing = self.get_final_string_without_transcription(combine_list, window_size/sampling_rate)
 
         #Assessing error rate of the resultant list of tuples
-        logger.info(f'Scoring DER...')
+        logger.info(f'Scoring {assessment}...')
         scorer = ScoringModule()
         if scorer.get_ground_truth_path(audio):
             #Testing
             self.export_textfile(scorer.get_ground_truth(scorer.get_ground_truth_path(audio)), 'testing')
 
-            error_rate = scorer.score(audio, for_assessing)
+            error_rate = scorer.score(audio, for_assessing, assessment)
             final_string = scorer.stringify(error_rate) + final_string
 
-        if DER_check:
+        #If this is testing, return error_rate
+        if assessment != 'None':
             return error_rate
 
         if not (transcription):
@@ -140,8 +150,13 @@ class TesterModule():
     def get_list_with_index_and_labels(self, index_list, labels):
         combine_list = []
 
-        for x in range(len(index_list)):
-            combine_list.append([index_list[x], self.speaker_decision(labels[x])])
+        if labels == None:
+            for x in range(len(index_list)):
+                combine_list.append([index_list[x], 'A'])
+
+        else:
+            for x in range(len(index_list)):
+                combine_list.append([index_list[x], self.speaker_decision(labels[x])])
 
         return combine_list
     
@@ -198,3 +213,12 @@ class TesterModule():
                 for_assessing.append((combine_list[x][1], round(start,2), round(end,2)))
 
         return final_string, final_list, for_assessing
+    
+
+    def vad_check_to_index_list(self, vad_check):
+        index_list = []
+        for x in range(len(vad_check)-1):
+            if vad_check[x]:
+                index_list.append(x)
+
+        return index_list

@@ -15,7 +15,45 @@ class ScoringModule():
                 self.name = choice
 
 
-    def score(self, audio_path, testing):
+    def score(self, audio_path, testing, assessment):
+
+        match assessment:
+
+            case 'DER':
+
+                return self.DER_test(audio_path, testing)
+
+            case 'VAD':
+
+                return self.VAD_test(audio_path, testing)
+        
+    def VAD_test(self, audio_path, testing):
+
+        logger.info(audio_path)
+
+        ground_truth_path = self.get_ground_truth_path(audio_path)
+
+        ground_truth = self.get_ground_truth(ground_truth_path)
+
+        if ground_truth == None:
+            return
+
+        hypothesis = Annotation()
+        reference = Annotation()
+
+        for x in testing:
+            hypothesis[Segment(float(x[1]), float(x[2]))] = 'A'
+
+        for x in ground_truth:
+            reference[Segment(float(x[1]), float(x[2]))] = 'A'
+
+        start = ground_truth[0][1]
+        end = ground_truth[-1][2]
+        diarizationErrorRate = DiarizationErrorRate(skip_overlap=True)
+
+        return diarizationErrorRate(reference, hypothesis, uem=Segment(start, end), detailed=True)['diarization error rate']
+    
+    def DER_test(self, audio_path, testing):
 
         logger.info(audio_path)
 
@@ -40,6 +78,7 @@ class ScoringModule():
         diarizationErrorRate = DiarizationErrorRate(skip_overlap=True)
 
         return diarizationErrorRate(reference, hypothesis, uem=Segment(start, end), detailed=True)['diarization error rate']
+        
     
     def get_ground_truth(self, path):
 
