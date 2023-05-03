@@ -150,13 +150,13 @@ class TesterModule():
     def get_list_with_index_and_labels(self, index_list, labels):
         combine_list = []
 
-        if labels == None:
+        if type(labels) == list:
             for x in range(len(index_list)):
-                combine_list.append([index_list[x], 'A'])
+                combine_list.append([index_list[x], self.speaker_decision(labels[x])])
 
         else:
             for x in range(len(index_list)):
-                combine_list.append([index_list[x], self.speaker_decision(labels[x])])
+                combine_list.append([index_list[x], 'A'])
 
         return combine_list
     
