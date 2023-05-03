@@ -13,8 +13,25 @@ class VADModule():
                                                     source = 'local',
                                                         model='silero_vad',
                                                         force_reload=True)
+                self.name = choice
+
+            case 'pyannote':
+                self.name = choice
+            
 
         self.sampling_rate = 16000
+    
+    def inference(self, tensor, window_size_samples = 8000, threshold = 0.2, plot = False):
+
+        match self.name:
+            case 'silero-vad':
+
+                return self.silero_vad_inference(tensor, window_size_samples, threshold, plot)
+
+            case 'pyannote':
+
+                pass
+
 
     def silero_vad_inference(self, tensor, window_size_samples = 8000, threshold = 0.2, plot = False):
   

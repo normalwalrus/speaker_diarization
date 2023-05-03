@@ -56,7 +56,7 @@ class TesterModule():
 
         #Voice Activation Detection (Modularise VAD class soon)
         logger.info('Performing Voice Activity Detction...')
-        vad_check, sampling_rate, _ = VAD.silero_vad_inference(tensors, threshold = 0.1 ,window_size_samples= window_size)
+        vad_check, sampling_rate, _ = VAD.silero_vad_inference(tensors ,window_size_samples= window_size)
 
         if assessment == 'VAD':
             #Setting up VAD check, no need for embeddings or clustering
