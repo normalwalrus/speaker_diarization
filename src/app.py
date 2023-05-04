@@ -6,15 +6,15 @@ path_to_audio = 'data/audio/'
 
 vad_choices = ['silero-vad']
 embedder_choices = ['ECAPA_TDNN_pretrained', 'ECAPA_TDNN_pretrained_singaporean', 'Wav2Vec2', 'MFCC', 'titanet-l.nemo']
-clustering_choices = ['KMeans', 'Spectral', 'Agglomerative', 'Google_Spectral']
+clustering_choices = ['KMeans', 'Spectral', 'Agglomerative', 'Google_Spectral', 'hdbscan']
 dataset_choices = ['None', 'CALLHOME', 'Noised_CALLHOME', 'Chatter_CALLHOME']
 assessment_choices = ['None', 'DER', 'VAD']
 
 EXAMPLES = [[path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'titanet-l.nemo', 'Google_Spectral', False, 'DER', 'CALLHOME'],
-            [path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
-            [path_to_audio+'CALLHOME/0638.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
-            [path_to_audio+'CALLHOME/4074.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False],
-            [path_to_audio+'Sg_parliament.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'Spectral', False]]
+            [path_to_audio+'british_ministers.wav', 2, 1, 'silero-vad', 'titanet-l.nemo', 'Google_Spectral', False, 'None', 'None'],
+            [path_to_audio+'CALLHOME/0638.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False, 'None', 'None'],
+            [path_to_audio+'CALLHOME/4074.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'KMeans', False, 'None', 'None'],
+            [path_to_audio+'Sg_parliament.wav', 2, 1, 'silero-vad', 'ECAPA_TDNN_pretrained', 'Spectral', False, 'None', 'None']]
 
 
 inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'),
@@ -23,7 +23,7 @@ inputs = [gr.Audio(source='upload', type='filepath', label = 'Audio'),
           gr.Radio(vad_choices, label= 'VAD choice'), gr.Radio(embedder_choices, label='Embedder Choice'), 
           gr.Radio(clustering_choices, label='Clustering Choice'),
           gr.Checkbox(label = 'Transcription'), gr.Radio(assessment_choices, label= 'Assessment Choice'), 
-          gr.Radio(dataset_choices, label='Clustering Choice')]
+          gr.Radio(dataset_choices, label='Dataset Choice')]
 
 outputs = ['text']
 

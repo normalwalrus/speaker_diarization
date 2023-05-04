@@ -1,5 +1,6 @@
 from sklearn.cluster import SpectralClustering, KMeans, DBSCAN, AgglomerativeClustering
 from spectralcluster import SpectralClusterer
+import hdbscan
 import numpy as np
 import torch
 
@@ -40,6 +41,10 @@ class ClusterModule():
                             custom_dist="cosine")
                 self.features = np.array(feature_list)
 
+            case 'hdbscan':
+                self.clusterer = hdbscan.HDBSCAN(min_cluster_size=10)
+                self.features = np.array(feature_list)
+
             case 'DBScan':
                 #Not in use since eps and min_samples hard to define
                 self.clusterer = DBSCAN(eps=3, min_samples=2).fit(feature_list)
@@ -54,6 +59,10 @@ class ClusterModule():
             case 'Google_Spectral':
 
                 return self.clusterer.predict(self.features)
+            
+            case 'hdbscan':
+                
+                return self.clusterer.fit_predict(self.features)
 
         return self.clusterer.labels_
     

@@ -78,7 +78,7 @@ class TesterModule():
             Clusterer = ClusterModule(embedding_list, clusterer, n_clusters)
             labels = Clusterer.get_labels()
         
-        combine_list = self.get_list_with_index_and_labels(index_list, labels)
+        combine_list = self.get_list_with_index_and_labels(index_list, labels, assessment)
 
         #Create the final string for presentation
         logger.info(f'Forming final list for display...')
@@ -147,17 +147,18 @@ class TesterModule():
         
         return features_list, index_list
     
-    def get_list_with_index_and_labels(self, index_list, labels):
+    def get_list_with_index_and_labels(self, index_list, labels, assessment):
         combine_list = []
-
-        if type(labels) == list:
-            for x in range(len(index_list)):
-                combine_list.append([index_list[x], self.speaker_decision(labels[x])])
-
-        else:
+        
+        if assessment == 'VAD':
             for x in range(len(index_list)):
                 combine_list.append([index_list[x], 'A'])
 
+        else:
+            for x in range(len(index_list)):
+                combine_list.append([index_list[x], self.speaker_decision(labels[x])])
+
+        
         return combine_list
     
     def dataset_decision(self, label):
