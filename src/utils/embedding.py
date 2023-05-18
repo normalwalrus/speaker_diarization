@@ -4,7 +4,7 @@ import librosa
 import numpy as np
 import torchaudio
 import nemo.collections.asr as nemo_asr
-from utils.audioDataloader import DataLoader_extraction
+from utils.audioDataloader import audio_dataloader
 from speechbrain.pretrained.interfaces import Pretrained
 from models.ECAPA_TDNN import ECAPA_TDNN
 from models.neuralnet import FeedForwardNN
@@ -86,7 +86,7 @@ class EmbedderModule():
             
             case 'MFCC':
 
-                DL = DataLoader_extraction(sr=16000)
+                DL = audio_dataloader(sr=16000)
                 features = tensors[0].numpy()
                 features = DL.MFCC_extraction(features, mean = False, remix = False)
                 features = torch.from_numpy(features)

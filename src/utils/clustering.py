@@ -5,6 +5,9 @@ import numpy as np
 import torch
 
 class ClusterModule():
+    """
+    Class is used to select the clustering choice and 
+    """
     def __init__(self, feature_list, choice = 'KMeans', n_cluster = 2) -> None:
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

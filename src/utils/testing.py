@@ -4,7 +4,7 @@ import pickle
 from utils.clustering import ClusterModule
 from utils.embedding import EmbedderModule
 from utils.vad import VADModule
-from utils.audioDataloader import DataLoader_extraction
+from utils.audioDataloader import audio_dataloader
 from utils.audioSplitter import SplitterModule
 from utils.transcription import TransciptionModule
 from utils.scoring import ScoringModule
@@ -50,7 +50,7 @@ class TesterModule():
 
         #Get tensors from the audio path
         logger.info('Extracting Features in Tensor form...')
-        DL = DataLoader_extraction(path = audio, normalize=True)
+        DL = audio_dataloader(path = audio, normalize=True)
         DL.rechannel_resample(0, 16000)
         tensors = DL.y[0][0]
 

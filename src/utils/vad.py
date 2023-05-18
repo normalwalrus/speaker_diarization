@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from utils.audioDataloader import DataLoader_extraction
+from utils.audioDataloader import audio_dataloader
 
 class VADModule():
 
