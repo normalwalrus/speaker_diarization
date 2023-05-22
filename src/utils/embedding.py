@@ -145,12 +145,18 @@ class Encoder_ECAPA_TDNN(Pretrained):
 
         Parameters
         ----------
-            tensors: Torch.tensor
-                Tensors (function built to receive tensors from audio wave) through the embedding module to get embeddings
+            wavs: Torch.tensor
+                Tensors (function built to receive tensors from audio wave) through the ECAPA-TDNN module to get embeddings
+            wav_lens: Integar
+                Can just be left as None, specify if you know the length of wavs
+            normalize: Boolean
+                Get the normalised version of the embedings from ECAPA-TDNN
+            device: string
+                Specify the device 'cpu' or 'gpu' for computation
         Returns
         ----------
-            features : Torch.tensor
-                Torch.tensor with the embeddings from the chosen embedder
+            embeddings : Torch.tensor
+                Torch.tensor with the embeddings from ECAPA_TDNN
         """
         # Manage single waveforms in input
         if len(wavs.shape) == 1:

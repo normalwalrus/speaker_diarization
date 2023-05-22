@@ -6,8 +6,11 @@ from constants.CALLHOME import CALLHOME_audio
 from logzero import logger
 
 class ScoringModule():
-
+    """
+    Class is used to select the scoring method to use. Be it Voice Activity Detection (VAD) or Diarization Error Rate (DER)
+    """
     def __init__(self, choice = 'Pyannote DER') -> None:
+        
 
         self.name = None
         match choice:
@@ -16,7 +19,23 @@ class ScoringModule():
 
 
     def score(self, audio_path, testing, assessment):
+        """
+        Choose which testing method to choose from 2 error rates
 
+        Parameters
+        ----------
+        audio_path : String
+            Path of the audio that is to be scored
+        testing : List
+            List of diarization ground truths (format : '[('A', 0.0, 3.0)]')
+        assessment : String
+            'DER' or 'VAD' currently to choose the assessment method
+            
+        Returns
+        ----------
+        error : float
+            error rate value for chosen assessment method
+        """
         match assessment:
 
             case 'DER':
@@ -28,6 +47,21 @@ class ScoringModule():
                 return self.VAD_test(audio_path, testing)
         
     def VAD_test(self, audio_path, testing):
+        """
+        For Voice Activity Detection testing 
+
+        Parameters
+        ----------
+        audio_path : String
+            Path of the audio that is to be scored
+        testing : List
+            List of diarization ground truths (format : '[('A', 0.0, 3.0)]')
+            
+        Returns
+        ----------
+        error : float
+            error rate value for chosen assessment method
+        """
 
         logger.info(audio_path)
 
@@ -54,6 +88,21 @@ class ScoringModule():
         return diarizationErrorRate(reference, hypothesis, uem=Segment(start, end), detailed=True)['diarization error rate']
     
     def DER_test(self, audio_path, testing):
+        """
+        For Diarization Error Rate testing 
+
+        Parameters
+        ----------
+        audio_path : String
+            Path of the audio that is to be scored
+        testing : List
+            List of diarization ground truths (format : '[('A', 0.0, 3.0)]')
+            
+        Returns
+        ----------
+        error : float
+            error rate value for chosen assessment method
+        """
 
         logger.info(audio_path)
 
@@ -81,6 +130,20 @@ class ScoringModule():
         
     
     def get_ground_truth(self, path):
+        """
+        For formatting .cha file or .txt file to the appropriate python list for error rate test
+
+        Parameters
+        ----------
+        path : String
+            Path of the audio that is to be scored
+            
+        Returns
+        ----------
+        : list
+            List of properly formatted list for scoring (format : '[('A', 0.0, 3.0)]')
+            or None
+        """
 
         match path[-3:]:
 
@@ -96,7 +159,19 @@ class ScoringModule():
 
     
     def get_ground_truth_path(self, audio_path):
-
+        """
+        To get the .cha or .txt file for the ground truth in scoring 
+        
+        Parameters
+        ----------
+        audio_path : String
+            Path of the audio that is to be scored
+            
+        Returns
+        ----------
+        : string
+            Path to the correct ground_truth .cha or .txt
+        """
         final_path = 'data/answer/'
 
         if 'british_ministers' in audio_path:
@@ -111,11 +186,37 @@ class ScoringModule():
             return None
     
     def stringify(self, error_rate):
+        """
+        Use the error rate to make a string for display
+        
+        Parameters
+        ----------
+        error rate : float
+            value of the error rate from the scoring module
+            
+        Returns
+        ----------
+        : string
+            Error rate string 
+        """
 
         return self.name + ' error rate : ' + str(error_rate) + '\n\n'
 
 
     def read_cha_to_list_CALLHOME(self, path_to_transcript):
+        """
+        Convert the .cha file from CALLHOME labelled dataset to list for testing
+        
+        Parameters
+        ----------
+        path_to_transcript : string
+            path to the .cha file with the correct transcript and timings for assessment
+            
+        Returns
+        ----------
+        ground_truth : list
+            list of properly formatted audio segments to use as ground truth in the assessment
+        """
 
         with open(path_to_transcript) as f:
             lines = f.readlines()
@@ -165,6 +266,19 @@ class ScoringModule():
         return ground_truth
     
     def read_txt_to_list(self, path):
+        """
+        Convert the .txt file to list for testing
+        
+        Parameters
+        ----------
+        path : string
+            path to the .txt file with the correct transcript and timings for assessment
+            
+        Returns
+        ----------
+        final_list : list
+            list of properly formatted audio segments to use as ground truth in the assessment
+        """
     
         with open(path) as f:
 

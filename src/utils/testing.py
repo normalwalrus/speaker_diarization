@@ -12,11 +12,32 @@ from logzero import logger
 from constants import CALLHOME
 
 class TesterModule():
+    """
+    Class is used to bring all other modules together to allow for diarization testing
+    """
     def __init__(self) -> None:
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def main(self, audio, n_clusters, window_length, vad, embedder, clusterer, transcription, assessment, dataset_choice):
+        """
+        Get the speaker embeddings from the ECAPA_TDNN
+
+        Parameters
+        ----------
+            wavs: Torch.tensor
+                Tensors (function built to receive tensors from audio wave) through the ECAPA-TDNN module to get embeddings
+            wav_lens: Integar
+                Can just be left as None, specify if you know the length of wavs
+            normalize: Boolean
+                Get the normalised version of the embedings from ECAPA-TDNN
+            device: string
+                Specify the device 'cpu' or 'gpu' for computation
+        Returns
+        ----------
+            embeddings : Torch.tensor
+                Torch.tensor with the embeddings from ECAPA_TDNN
+        """
 
         VAD = VADModule(vad)
         Embedder = EmbedderModule(embedder)
