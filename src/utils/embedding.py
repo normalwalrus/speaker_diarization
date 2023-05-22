@@ -13,7 +13,19 @@ PATH_TO_ECAPA_TDNN = '/models/ECAPA_TDNN_v1.0_5sec_80MFCC_30epoch.pt'
 PATH_TO_FEEDFORWARD = os.getcwd()+'/models/ECAPA_TDNN_Pretrained_v1.0_5sec_10epoch.pt'
 
 class EmbedderModule():
+    """
+    Class is used to select the embedding choice and get the embedding values
+    """
     def __init__(self, choice = 'ECAPA_TDNN_pretrained') -> None:
+        """
+        Initialises the embedding module
+
+        Parameters
+        ----------
+            choice: String
+                Choice of the embedding methods that are stated in the module
+                Choose from ['ECAPA_TDNN_pretrained_singaporean','ECAPA_TDNN_pretrained', 'Wav2Vec2', 'titanet-l.nemo', 'MFCC' ]
+        """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.name = choice
         
@@ -41,18 +53,23 @@ class EmbedderModule():
             
             case 'MFCC':
                 self.classifier = None
-            
-            case 'ECAPA_TDNN': # DOES NOT WORK SINCE ECAPA TRAINED ON 5 SEC AUDIO ONLY
-                save_path = os.getcwd() + PATH_TO_ECAPA_TDNN
-                self.classifier = ECAPA_TDNN(157 ,512, 20)
-                self.classifier.load_state_dict(torch.load(save_path))
-                self.classifier.eval().double()
-                self.datatype = 'MFCC'
 
             case _:
                 print('Error: Embedder Choice not found')
 
     def get_embeddings(self, tensors):
+        """
+        Put the tensors (function built to receive tensors from audio wave) through the embedding module to get embeddings
+
+        Parameters
+        ----------
+            tensors: Torch.tensor
+                Tensors (function built to receive tensors from audio wave) through the embedding module to get embeddings
+        Returns
+        ----------
+            features : Torch.tensor
+                Torch.tensor with the embeddings from the chosen embedder
+        """
 
         match self.name:
 
@@ -109,6 +126,9 @@ class EmbedderModule():
 
 
 class Encoder_ECAPA_TDNN(Pretrained):
+    """
+    Class used to instantiate the pretrained ECAPA_TDNN
+    """
 
     MODULES_NEEDED = [
         "compute_features",
@@ -120,6 +140,18 @@ class Encoder_ECAPA_TDNN(Pretrained):
         super().__init__(*args, **kwargs)
 
     def encode_batch(self, wavs, wav_lens=None, normalize=False, device = 'cpu'):
+        """
+        Get the speaker embeddings from the ECAPA_TDNN
+
+        Parameters
+        ----------
+            tensors: Torch.tensor
+                Tensors (function built to receive tensors from audio wave) through the embedding module to get embeddings
+        Returns
+        ----------
+            features : Torch.tensor
+                Torch.tensor with the embeddings from the chosen embedder
+        """
         # Manage single waveforms in input
         if len(wavs.shape) == 1:
             wavs = wavs.unsqueeze(0)

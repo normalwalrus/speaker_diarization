@@ -6,10 +6,24 @@ import torch
 
 class ClusterModule():
     """
-    Class is used to select the clustering choice and 
+    Class is used to select the clustering choice and get clustering labels
+
+    Editors note: Yes, this is not the best implimentation of this. My bad on that one hahaha
     """
     def __init__(self, feature_list, choice = 'KMeans', n_cluster = 2) -> None:
-        
+        """
+        Initialises the clustering module
+
+        Parameters
+        ----------
+            feature_list: Numpy array 
+                Numpy array of the features or embeddings for clustering
+            choice: String
+                Choice of the clustering methods that are stated in the module
+                Choose from ['KMeans', 'Spectral', 'Agglomerative', 'Google_Spectral', 'hdbscan', 'DBScan']
+            n_cluster: Integar
+                Number of clusters (If known, if not n_cluster = 0)
+        """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.name = choice
 
@@ -26,8 +40,6 @@ class ClusterModule():
                 self.clusterer = KMeans(n_clusters=self.n_cluster, random_state=0, n_init="auto").fit(feature_list)
 
             case 'Spectral':
-                #TODO how to predict
-                #Nearest_Neighbours seem to perform the best
                 self.clusterer = SpectralClustering(n_clusters=self.n_cluster, random_state=0,
                                                     assign_labels='cluster_qr', affinity= 'nearest_neighbors').fit(feature_list)
                 
@@ -56,6 +68,14 @@ class ClusterModule():
                 print('Error: Clustering choice not found')
     
     def get_labels(self):
+        """
+        Get the labels for each embedding in a list form
+
+        Returns
+        ----------
+            labels: Python list
+                List with all the labels from each embedding
+        """
 
         match self.name:
 
@@ -70,6 +90,18 @@ class ClusterModule():
         return self.clusterer.labels_
     
     def elbow_method(self, feature_list):
+        """
+        Performs elbow method on the given feature_list
+
+        Parameters
+        ----------
+            feature_list: Numpy array 
+                Numpy array of the features or embeddings for clustering
+        Returns
+        ----------
+            index: Integar
+                index for the ideal k value for kmeans clustering
+        """
 
         distortions = []
         index = 0
